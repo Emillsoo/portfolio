@@ -15,6 +15,7 @@
 | [입퇴원 요약 AI 초안](projects/discharge-summary-ai-draft-n8n) | n8n·LLM | 항목별 LLM 5분담 · 합류 게이트 · 휴먼리뷰 게이트 |
 | [DUR/개인투약이력 EMR 외부조회 API](projects/dur-kims-emr-external-api-java) | API·Java | 레거시 EMR 내부→외부 API 확장 · 정적+실검증 |
 | [지출결의서 자동 상신 (RPA)](projects/expense-approval-rpa) | RPA·백엔드 | Flask+SocketIO+큐 · Redis 폴백 · RPA 엔드투엔드 |
+| [전산개발 회의 자동화 (풀스택+AI)](projects/meeting-automation) | FastAPI·Next.js·STT/LLM | 풀스택 · 회의 도메인 모델링 · STT/LLM 요약 |
 
 각 대표 프로젝트의 `impl/`에는 합성 데이터 기반 **실행 가능한 가상 재구현 + 단위테스트**가 포함됩니다.
 
@@ -35,7 +36,7 @@
 - [외래 대기안내 연동 배치 (WaitGuideMark)](projects/outpatient-simplification-batch) · Java 배치 시스템연동
 
 ## 그 외 경험
-[요약 보기](projects/other-experience) — 진료실 대기 전광판 · 회의록 자동화 · 새롬 채용수납처리 · 전산개발위원회 과제 마스터 (규모가 작거나 직접 구현 범위 확정 전인 항목).
+[요약 보기](projects/other-experience) — 진료실 대기 전광판 · 새롬 채용수납처리 · 전산개발위원회 과제 마스터 (규모가 작거나 직접 구현 범위 확정 전인 항목).
 
 ## 기술 스택
 Python · Java · JavaScript · SQL · PowerShell / n8n · Robot Framework · Selenium · Playwright · FastAPI · Flask · Oracle · LLM 연계
