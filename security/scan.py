@@ -47,7 +47,11 @@ def scan_text(text: str, terms: list[str]) -> list[dict]:
             continue
         for name, pat in PATTERNS.items():
             for m in pat.finditer(line):
-                hits.append({"line": i, "rule": name, "match": m.group()[:6] + "***"})
+                mt = m.group()
+                # 오탐 억제: ISO 날짜(YYYY-MM-DD)를 계좌로 오인하지 않음
+                if name == "bank_acct" and re.fullmatch(r"\d{4}-\d{2}-\d{2}", mt):
+                    continue
+                hits.append({"line": i, "rule": name, "match": mt[:6] + "***"})
         for t in terms:
             if t in line:
                 hits.append({"line": i, "rule": "sensitive_term", "match": t})
