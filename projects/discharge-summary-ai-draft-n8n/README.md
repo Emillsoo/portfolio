@@ -44,3 +44,5 @@ python summary_pipeline.py     # 요약→적재→성공판정→서명 데모(
 python -m unittest -v          # 12개: 게이트/품질/성공판정 3중/휴먼리뷰
 ```
 `impl/summary_pipeline.py` — 5분담·Merge 게이트·품질규칙·성공판정 3중조건·감사로그·휴먼리뷰 게이트 재현.
+
+**n8n 워크플로우**: `impl/workflow.demo.json` — 트리거→조회→CLOB병합→LLM 5분담→Merge 게이트(5)→품질규칙→적재→성공판정 3중조건→감사로그/알림 구조의 **import 가능한 합성 워크플로우**.

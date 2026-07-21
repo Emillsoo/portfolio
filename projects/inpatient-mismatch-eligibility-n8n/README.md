@@ -56,3 +56,5 @@ python eligibility_check.py       # 합성 데이터 대조 데모
 python -m unittest -v             # 11개 단위테스트 (3중 가드 + 시트 보존)
 ```
 `impl/eligibility_check.py` — 최신선택·3중 가드·코드→한글 변환·시트 보존 가드를 순수 파이썬으로 재현.
+
+**n8n 워크플로우**: `impl/workflow.demo.json` — 스케줄→조회(ROW_NUMBER)→병합→3중가드 Code→IF→시트/메일 구조의 **import 가능한 합성 워크플로우**(자격증명만 채우면 확인 가능).

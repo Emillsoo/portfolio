@@ -31,9 +31,11 @@
 - [AI 개발원칙 프롬프트 시스템](projects/ai-dev-principles-system)
 - [CSI 개선활동 (EMR 데이터처리)](projects/csi-emr-data-improvement)
 - [일일보고 자동등록 (Redmine API)](projects/daily-report-redmine-automation)
+- [입원초진기록 초안 자동작성 (n8n·AI)](projects/admission-initial-record-n8n) · 입퇴원 요약과 동일 파이프라인의 확장
+- [외래 대기안내 연동 배치 (WaitGuideMark)](projects/outpatient-simplification-batch) · Java 배치 시스템연동
 
-## 그 외 (언급)
-입원초진기록 초안(n8n) · 외래 대기안내 배치 · 외래 대기 전광판 · 회의록 자동화 · 새롬 채용수납처리 · 전산개발위원회 과제 마스터 — `projects/` 참조.
+## 그 외 경험
+[요약 보기](projects/other-experience) — 진료실 대기 전광판 · 회의록 자동화 · 새롬 채용수납처리 · 전산개발위원회 과제 마스터 (규모가 작거나 직접 구현 범위 확정 전인 항목).
 
 ## 기술 스택
 Python · Java · JavaScript · SQL · PowerShell / n8n · Robot Framework · Selenium · Playwright · FastAPI · Flask · Oracle · LLM 연계

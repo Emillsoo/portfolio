@@ -1,0 +1,77 @@
+{
+  "name": "재원환자 불일치 자격확인 알림 (DEMO · 합성)",
+  "_comment": "가상 재구현본. 실제 EMR/공단/기관 크리덴셜·테이블·서브밋 미포함. n8n import 후 자격증명만 채우면 구조 확인 가능.",
+  "active": false,
+  "settings": { "executionOrder": "v1", "timezone": "Asia/Seoul" },
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "0 9 * * *" } ] } },
+      "id": "n1", "name": "매일 09:00 (Asia/Seoul)", "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1, "position": [ 240, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT inst_cd, patient_id, insurance_type, disabled, queried_at\nFROM demo_inhouse_eligibility\nWHERE stay_status = 'IN'",
+        "options": {}
+      },
+      "id": "n2", "name": "원내 자격 조회 (READ-ONLY)", "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5, "position": [ 460, 220 ],
+      "notesInFlow": true, "notes": "실제로는 EMR Oracle READ-ONLY. 데모는 합성 테이블."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT inst_cd, patient_id, insurance_type, disabled, queried_at\nFROM (\n  SELECT t.*, ROW_NUMBER() OVER (PARTITION BY inst_cd, patient_id ORDER BY queried_at DESC) rn\n  FROM demo_nhic_result t\n) WHERE rn = 1",
+        "options": {}
+      },
+      "id": "n3", "name": "공단 최신결과 1건 (ROW_NUMBER)", "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5, "position": [ 460, 380 ]
+    },
+    {
+      "parameters": {
+        "mode": "combine", "combineBy": "combineByFields",
+        "fieldsToMatchString": "inst_cd, patient_id", "options": {}
+      },
+      "id": "n4", "name": "원내+공단 병합", "type": "n8n-nodes-base.merge",
+      "typeVersion": 3, "position": [ 700, 300 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 거짓 불일치 방지 3중 가드 + 표준화 + 코드→한글\nconst LABEL = { N:'건강보험', G:'의료급여', E:'차상위', F:'차상위(장애인)', B:'보훈' };\nconst norm = (c, d) => c === 'E' && d ? 'F' : c;\nconst out = [];\nfor (const it of $input.all()) {\n  const r = it.json;\n  // G1: 공단 미수신 제외\n  if (r.nhic_insurance_type == null) continue;\n  // G2: 기관 혼입 차단 (병합키가 inst_cd 포함이라 이미 보장)\n  // G3: 차상위 표준화 후 비교\n  const h = norm(r.inhouse_insurance_type, r.disabled);\n  const n = norm(r.nhic_insurance_type, r.disabled);\n  if (h !== n) out.push({ json: { patient_id: r.patient_id, in_house: LABEL[h]||'미확인', nhic: LABEL[n]||'미확인' } });\n}\nreturn out;"
+      },
+      "id": "n5", "name": "3중 가드 + 판정", "type": "n8n-nodes-base.code",
+      "typeVersion": 2, "position": [ 920, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": { "options": { "caseSensitive": true }, "conditions": [ { "leftValue": "={{ $items().length }}", "rightValue": 0, "operator": { "type": "number", "operation": "gt" } } ] }
+      },
+      "id": "n6", "name": "불일치 대상자 있음?", "type": "n8n-nodes-base.if",
+      "typeVersion": 2, "position": [ 1140, 300 ]
+    },
+    {
+      "parameters": { "operation": "append", "documentId": "={{ $env.DEMO_SHEET_ID }}", "sheetName": "={{ $now.format('yyyy-MM-dd') }}", "options": {} },
+      "id": "n7", "name": "당일 시트 기록", "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4, "position": [ 1380, 220 ]
+    },
+    {
+      "parameters": { "sendTo": "={{ $env.DEMO_ALERT_TO }}", "subject": "재원환자 자격 불일치 알림", "message": "불일치 대상자를 확인하세요.", "options": {} },
+      "id": "n8", "name": "Gmail 알림", "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1, "position": [ 1600, 220 ]
+    },
+    {
+      "parameters": {}, "id": "n9", "name": "정상 종료 (0건)", "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1, "position": [ 1380, 400 ]
+    }
+  ],
+  "connections": {
+    "매일 09:00 (Asia/Seoul)": { "main": [ [ { "node": "원내 자격 조회 (READ-ONLY)", "type": "main", "index": 0 }, { "node": "공단 최신결과 1건 (ROW_NUMBER)", "type": "main", "index": 0 } ] ] },
+    "원내 자격 조회 (READ-ONLY)": { "main": [ [ { "node": "원내+공단 병합", "type": "main", "index": 0 } ] ] },
+    "공단 최신결과 1건 (ROW_NUMBER)": { "main": [ [ { "node": "원내+공단 병합", "type": "main", "index": 1 } ] ] },
+    "원내+공단 병합": { "main": [ [ { "node": "3중 가드 + 판정", "type": "main", "index": 0 } ] ] },
+    "3중 가드 + 판정": { "main": [ [ { "node": "불일치 대상자 있음?", "type": "main", "index": 0 } ] ] },
+    "불일치 대상자 있음?": { "main": [ [ { "node": "당일 시트 기록", "type": "main", "index": 0 } ], [ { "node": "정상 종료 (0건)", "type": "main", "index": 0 } ] ] },
+    "당일 시트 기록": { "main": [ [ { "node": "Gmail 알림", "type": "main", "index": 0 } ] ] }
+  }
+}
