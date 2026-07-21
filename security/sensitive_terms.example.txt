@@ -1,0 +1,8 @@
+# 민감어 사전 예시 (실제 사전은 저장소에 포함하지 않음)
+# 한 줄에 하나씩, 공개되면 안 되는 벤더 실명/시스템 코드네임/실명/식별 접두를 넣는다.
+VendorNameA
+VendorNameB
+LegacyEmrCodename
+PatientNameExample
+SUBMIT_PREFIX_1
+SUBMIT_PREFIX_2
